@@ -1,9 +1,9 @@
-name: Build Flutter APK
+name: Build APK
 
 on:
   push:
-    branches: [ "main" ]
-  workflow_dispatch: # ഇത് നൽകിയാൽ Actions ടാബിൽ പോയി ബട്ടൺ അമർത്തിയും ബിൽഡ് ചെയ്യാം
+    branches: [ "master", "main" ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -12,32 +12,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Java സെറ്റപ്പ് ചെയ്യുന്നു (Android Build-ന് അത്യാവശ്യമാണ്)
       - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
 
-      # Flutter ഇൻസ്റ്റാൾ ചെയ്യുന്നു
-      # മാറ്റം: 3.19.0 എന്ന പഴയ വേർഷൻ മാറ്റി ഏറ്റവും പുതിയത് ആക്കുന്നു
       - uses: subosito/flutter-action@v2
         with:
-          channel: 'stable' # ഏറ്റവും പുതിയ സ്റ്റേബിൾ വേർഷൻ ഉപയോഗിക്കും
-          # flutter-version: '3.19.0' -> ഈ ലൈൻ ഒഴിവാക്കി
+          flutter-version: '3.19.0'
 
-      - name: Install Dependencies
+      - name: Get Dependencies
         run: flutter pub get
 
-      # APK ബിൽഡ് ചെയ്യുന്നു
-      # ശ്രദ്ധിക്കുക: കീ (Key) ഇല്ലാത്തതുകൊണ്ട് ഇത് ഡിബഗ് കീ ഉപയോഗിച്ചോ 
-      # അല്ലെങ്കിൽ അൺസൈൻഡ് ആയോ ആയിരിക്കും ബിൽഡ് ആവുക. 
-      # ഫോണിൽ ഇൻസ്റ്റാൾ ചെയ്യാൻ ഇത് മതിയാകും.
-      - name: Build APK
-        run: flutter build apk --release
+      # ലോഗോ ജനറേറ്റ് ചെയ്യാനുള്ള കമാൻഡ്
+      - name: Generate App Icons
+        run: flutter pub run flutter_launcher_icons
 
-      # ബിൽഡ് ചെയ്ത APK ഡൗൺലോഡ് ചെയ്യാൻ പാകത്തിൽ അപ്‌ലോഡ് ചെയ്യുന്നു
+      # APK സൈസ് കുറച്ച് നിർമ്മിക്കാനുള്ള കമാൻഡ് (ARM64 only)
+      - name: Build APK
+        run: flutter build apk --release --target-platform android-arm64 --no-tree-shake-icons
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: school-erp-app
+          name: fest-manager-apk
           path: build/app/outputs/flutter-apk/app-release.apk
