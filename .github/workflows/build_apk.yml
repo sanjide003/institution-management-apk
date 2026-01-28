@@ -19,10 +19,11 @@ jobs:
           java-version: '17'
 
       # Flutter ഇൻസ്റ്റാൾ ചെയ്യുന്നു
+      # മാറ്റം: 3.19.0 എന്ന പഴയ വേർഷൻ മാറ്റി ഏറ്റവും പുതിയത് ആക്കുന്നു
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.0' # സ്റ്റേബിൾ വേർഷൻ
-          channel: 'stable'
+          channel: 'stable' # ഏറ്റവും പുതിയ സ്റ്റേബിൾ വേർഷൻ ഉപയോഗിക്കും
+          # flutter-version: '3.19.0' -> ഈ ലൈൻ ഒഴിവാക്കി
 
       - name: Install Dependencies
         run: flutter pub get
