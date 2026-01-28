@@ -1,8 +1,8 @@
-name: Build APK
+name: Build Flutter APK
 
 on:
   push:
-    branches: [ "master", "main" ]
+    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
@@ -19,21 +19,24 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.0'
+          channel: 'stable'
 
-      - name: Get Dependencies
+      # --- CRITICAL FIX START ---
+      # പഴയ ആൻഡ്രോയിഡ് ഫോൾഡർ കളഞ്ഞ് പുതിയത് ഉണ്ടാക്കുന്നു
+      - name: Fix Android Embedding
+        run: |
+          rm -rf android
+          flutter create . --platforms=android
+      # --- CRITICAL FIX END ---
+
+      - name: Install Dependencies
         run: flutter pub get
 
-      # ലോഗോ ജനറേറ്റ് ചെയ്യാനുള്ള കമാൻഡ്
-      - name: Generate App Icons
-        run: flutter pub run flutter_launcher_icons
-
-      # APK സൈസ് കുറച്ച് നിർമ്മിക്കാനുള്ള കമാൻഡ് (ARM64 only)
       - name: Build APK
-        run: flutter build apk --release --target-platform android-arm64 --no-tree-shake-icons
+        run: flutter build apk --release
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: fest-manager-apk
+          name: school-erp-app
           path: build/app/outputs/flutter-apk/app-release.apk
