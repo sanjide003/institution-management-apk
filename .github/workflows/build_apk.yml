@@ -1,0 +1,42 @@
+name: Build Flutter APK
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: # ഇത് നൽകിയാൽ Actions ടാബിൽ പോയി ബട്ടൺ അമർത്തിയും ബിൽഡ് ചെയ്യാം
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Java സെറ്റപ്പ് ചെയ്യുന്നു (Android Build-ന് അത്യാവശ്യമാണ്)
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      # Flutter ഇൻസ്റ്റാൾ ചെയ്യുന്നു
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.0' # സ്റ്റേബിൾ വേർഷൻ
+          channel: 'stable'
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      # APK ബിൽഡ് ചെയ്യുന്നു
+      # ശ്രദ്ധിക്കുക: കീ (Key) ഇല്ലാത്തതുകൊണ്ട് ഇത് ഡിബഗ് കീ ഉപയോഗിച്ചോ 
+      # അല്ലെങ്കിൽ അൺസൈൻഡ് ആയോ ആയിരിക്കും ബിൽഡ് ആവുക. 
+      # ഫോണിൽ ഇൻസ്റ്റാൾ ചെയ്യാൻ ഇത് മതിയാകും.
+      - name: Build APK
+        run: flutter build apk --release
+
+      # ബിൽഡ് ചെയ്ത APK ഡൗൺലോഡ് ചെയ്യാൻ പാകത്തിൽ അപ്‌ലോഡ് ചെയ്യുന്നു
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: school-erp-app
+          path: build/app/outputs/flutter-apk/app-release.apk
